@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+    }
+
+    stages {
+
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Checkout Terraform Code') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/itsbittukumar/terraform-eks.git'
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+
+        stage('Terraform Validate State') {
+            steps {
+                sh 'terraform state list'
+            }
+        }
+
+        stage('Manual Approval') {
+            steps {
+                input(
+                    message: 'Are you sure you want to DESTROY infrastructure?',
+                    ok: 'Destroy Now'
+                )
+            }
+        }
+
+        stage('Terraform Destroy') {
+            steps {
+                sh 'terraform destroy -auto-approve'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Infrastructure Destroyed Successfully"
+        }
+
+        failure {
+            echo "❌ Terraform Destroy Failed"
+        }
+    }
+}
