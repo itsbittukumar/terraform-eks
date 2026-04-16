@@ -31,8 +31,11 @@ pipeline {
         stage('Checkov Policy Scan') {
             steps {
                 withCredentials([
-                    string(credentialsId: 'PC_USER', variable: 'pc_user'),
-                    string(credentialsId: 'PC_PASSWORD', variable: 'pc_password')
+                    usernamePassword(
+                        credentialsId: 'prisma-api-creds',
+                        usernameVariable: 'PC_USER',
+                        passwordVariable: 'PC_PASS'
+                    )
                 ]) {
                     script {
                         docker.image('bridgecrew/checkov:latest').inside("--entrypoint=''") {
@@ -45,11 +48,13 @@ pipeline {
                                   -o cli \
                                   -o junitxml \
                                   --output-file-path console,results.xml \
-                                  --bc-api-key ${pc_user}::${pc_password} \
+                                  --bc-api-key ${PC_USER}::${PC_PASS} \
                                   --repo-id itsbittukumar/terraform-eks \
                                   --branch main
                                 '''
+
                                 junit skipPublishingChecks: true, testResults: 'results.xml'
+
                             } catch (err) {
                                 junit skipPublishingChecks: true, testResults: 'results.xml'
                                 throw err
@@ -62,11 +67,13 @@ pipeline {
 
         stage('Prisma IaC Scan') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'prisma-creds',
-                    usernameVariable: 'PRISMA_USER',
-                    passwordVariable: 'PRISMA_PASS'
-                )]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'prisma-creds',
+                        usernameVariable: 'PRISMA_USER',
+                        passwordVariable: 'PRISMA_PASS'
+                    )
+                ]) {
                     sh '''
                     twistcli iac scan \
                       --address $PRISMA_URL \
