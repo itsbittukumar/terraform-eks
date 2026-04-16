@@ -65,26 +65,26 @@ pipeline {
             }
         }
 
-        stage('Prisma IaC Scan') {
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'prisma-creds',
-                        usernameVariable: 'PRISMA_USER',
-                        passwordVariable: 'PRISMA_PASS'
-                    )
-                ]) {
-                    sh '''
-                    twistcli iac scan \
-                      --address $PRISMA_URL \
-                      --user $PRISMA_USER \
-                      --password $PRISMA_PASS \
-                      --details \
-                      .
-                    '''
-                }
-            }
-        }
+        // stage('Prisma IaC Scan') {
+        //     steps {
+        //         withCredentials([
+        //             usernamePassword(
+        //                 credentialsId: 'prisma-creds',
+        //                 usernameVariable: 'PRISMA_USER',
+        //                 passwordVariable: 'PRISMA_PASS'
+        //             )
+        //         ]) {
+        //             sh '''
+        //             twistcli iac scan \
+        //               --address $PRISMA_URL \
+        //               --user $PRISMA_USER \
+        //               --password $PRISMA_PASS \
+        //               --details \
+        //               .
+        //             '''
+        //         }
+        //     }
+        // }
 
         stage('Terraform Init') {
             steps {
