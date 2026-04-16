@@ -26,12 +26,6 @@ pipeline {
             }
         }
 
-        stage('Terraform Validate State') {
-            steps {
-                sh 'terraform state list'
-            }
-        }
-
         stage('Manual Approval') {
             steps {
                 input(
